@@ -2,7 +2,7 @@
 
 <!-- Banner image (replace with real project cover) -->
 
-![LUMINA Banner](https://via.placeholder.com/1200x300?text=LUMINA+Project+Banner)
+![LUMINA Banner](docs/screenshots/banner.png)
 
 > **AMD ACT-II Hackathon Submission**  
 > Computer Vision + AI for real-time Alzheimer patient safety monitoring
@@ -73,7 +73,7 @@ The project is fully deployment‑ready for AMD infrastructure. Once AMD GPU res
 
 <!-- Architecture diagram (replace with real diagram image) -->
 
-![Architecture Diagram](https://via.placeholder.com/800x400?text=Architecture+Diagram)
+![Architecture Diagram](docs/screenshots/architecture.png)
 
 ```
 ┌──────────────────────────────────────────────────────┐
@@ -236,12 +236,12 @@ LUMINA/
 
 <!-- Dashboard screenshots (replace with actual screenshots) -->
 
-![Family Dashboard](https://via.placeholder.com/800x400?text=Family+Dashboard+Screenshot)
-![Patient Dashboard](https://via.placeholder.com/800x400?text=Patient+Dashboard+Screenshot)
+![Family Dashboard](docs/screenshots/family-dashboard.png)
+![Patient Dashboard](docs/screenshots/patient-dashboard.png)
 
 - **Live URL:** `http://localhost:8000` (local deployment)
-- **Video Demo:** [YouTube — coming soon]
-- **Slide Deck:** [Google Slides — coming soon]
+  **Video Demo:** <YOUTUBE_LINK>
+  **Slide Deck:** <GOOGLE_SLIDES_LINK>
 
 ---
 
