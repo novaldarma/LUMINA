@@ -1,6 +1,0 @@
-{
-  "include": ["backend", "monitor", "frontend"],
-  "extraPaths": ["backend"],
-  "pythonVersion": "3.11",
-  "typeCheckingMode": "off"
-}
