@@ -41,6 +41,8 @@ from database import (
     get_all_logs,
     get_today_logs,
     get_log_count,
+    delete_log,
+    delete_all_logs,
     insert_reference_photo,
     get_reference_photos,
     get_reference_photo_paths,
@@ -145,6 +147,12 @@ class PatientConfigRequest(BaseModel):
     caregiver_notes: Optional[str] = None
 
 
+class CameraConfigRequest(BaseModel):
+    camera_url: str
+    camera_username: str = ""
+    camera_password: str = ""
+
+
 # ── Static file mount for patient reference photos ─────────────────────────
 if os.path.isdir(PATIENT_PHOTO_DIR):
     app.mount("/patient_photos", StaticFiles(directory=PATIENT_PHOTO_DIR), name="patient_photos")
@@ -189,6 +197,22 @@ async def api_get_log_image(log_id: int):
                 return FileResponse(snapshot_path, media_type="image/jpeg")
             break
     raise HTTPException(status_code=404, detail="Image not found")
+
+
+@app.delete("/api/logs/{log_id}")
+async def api_delete_log(log_id: int):
+    """Delete a single activity log by ID."""
+    ok = delete_log(log_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Log not found.")
+    return JSONResponse({"success": True, "message": "Log deleted."})
+
+
+@app.delete("/api/logs")
+async def api_delete_all_logs():
+    """Delete all activity logs."""
+    count = delete_all_logs()
+    return JSONResponse({"success": True, "message": f"Deleted {count} log(s).", "deleted_count": count})
 
 
 @app.post("/api/upload-reference")
@@ -874,12 +898,6 @@ async def api_delete_memory(memory_id: int):
 # =========================================================
 # CAMERA CONFIG — Dynamic CCTV URL / Username / Password
 # =========================================================
-
-class CameraConfigRequest(BaseModel):
-    camera_url: str
-    camera_username: str = ""
-    camera_password: str = ""
-
 
 @app.get("/api/camera-config")
 async def api_get_camera_config():

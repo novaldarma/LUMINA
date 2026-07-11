@@ -1236,44 +1236,81 @@ class CCTVMaster:
             return buf.tobytes() if ok else None
 
     def update_camera_config(self, url: str, username: str = "", password: str = "") -> None:
-        """Update camera configuration at runtime."""
+        """Update camera configuration at runtime and persist to JSON + .env."""
         was_running = self._running
         if was_running:
+            logger.info("📷 Stopping monitoring to apply new camera config...")
             self.stop()
+            # Give threads time to clean up
+            time.sleep(0.5)
 
         self.camera_url = url
         self.camera_username = username
         self.camera_password = password
 
-        # Update .env
+        # ── Persist to camera_config.json (primary storage) ──────────────────
+        config_path = os.path.join(BACKEND_DIR, "camera_config.json")
+        try:
+            cfg = {
+                "camera_url": url,
+                "camera_username": username,
+                "camera_password": password,
+            }
+            with open(config_path, "w") as f:
+                json.dump(cfg, f, indent=2)
+            logger.info("📷 Camera config saved to camera_config.json")
+        except Exception as e:
+            logger.error("Failed to save camera_config.json: %s", e)
+
+        # ── Persist to .env (secondary, for backward compatibility) ──────────
         env_path = os.path.join(BACKEND_DIR, "..", ".env")
         if os.path.exists(env_path):
-            with open(env_path, "r") as f:
-                env_content = f.read()
+            try:
+                with open(env_path, "r") as f:
+                    lines = f.readlines()
 
-            for key, value in [
-                ("CAMERA_URL", url),
-                ("CAMERA_USERNAME", username),
-                ("CAMERA_PASSWORD", password),
-            ]:
-                if key in env_content:
-                    env_content = env_content.replace(
-                        f"{key}={os.getenv(key, '')}",
-                        f"{key}={value}",
-                    )
-                else:
-                    env_content += f"\n{key}={value}\n"
+                updated_keys = {"CAMERA_URL": url, "CAMERA_USERNAME": username, "CAMERA_PASSWORD": password}
+                new_lines = []
+                seen_keys = set()
 
-            with open(env_path, "w") as f:
-                f.write(env_content)
+                for line in lines:
+                    stripped = line.strip()
+                    # Skip empty lines and comments
+                    if not stripped or stripped.startswith("#"):
+                        new_lines.append(line)
+                        continue
+                    # Check if this line sets one of our keys
+                    matched = False
+                    for key, value in updated_keys.items():
+                        if stripped.startswith(f"{key}=") or stripped.startswith(f"{key} ="):
+                            new_lines.append(f"{key}={value}\n")
+                            seen_keys.add(key)
+                            matched = True
+                            break
+                    if not matched:
+                        new_lines.append(line)
 
+                # Append any keys not found
+                for key, value in updated_keys.items():
+                    if key not in seen_keys:
+                        new_lines.append(f"{key}={value}\n")
+
+                with open(env_path, "w") as f:
+                    f.writelines(new_lines)
+                logger.info("📷 Camera config synced to .env")
+            except Exception as e:
+                logger.warning("Failed to update .env: %s", e)
+
+        # ── Update os.environ ────────────────────────────────────────────────
         os.environ["CAMERA_URL"] = url
         os.environ["CAMERA_USERNAME"] = username
         os.environ["CAMERA_PASSWORD"] = password
 
-        logger.info("📷 Camera config updated: %s", url)
+        logger.info("📷 Camera config updated: %s", url[:80] if len(url) > 80 else url)
 
+        # ── Restart monitoring if it was running ─────────────────────────────
         if was_running:
+            logger.info("📷 Restarting monitoring with new camera config...")
             self.start()
 
 

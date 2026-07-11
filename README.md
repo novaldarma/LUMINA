@@ -64,7 +64,7 @@
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/LUMINA.git
+git clone https://github.com/novaldarma/LUMINA.git
 cd LUMINA
 ```
 
@@ -190,9 +190,9 @@ LUMINA/
 
 ## 🎬 Demo
 
-- **Live URL:** [Add your Cloudflare Tunnel / deployment URL]
-- **Video Demo:** [Add YouTube link]
-- **Slide Deck:** [Add Google Slides link]
+- **Live URL:** `http://localhost:8000` (local deployment)
+- **Video Demo:** [YouTube — coming soon]
+- **Slide Deck:** [Google Slides — coming soon]
 
 ---
 

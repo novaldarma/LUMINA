@@ -659,6 +659,135 @@ body {
   color: var(--color-destructive);
 }
 
+/* ── Camera Config Panel ───────────────────────────────────────────────── */
+.panel-camera-config {
+  flex-shrink: 0;
+}
+
+.panel-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--color-accent);
+  letter-spacing: 0.03em;
+}
+
+.camera-config-form {
+  padding: var(--space-lg);
+}
+
+.camera-config-form .text-muted {
+  margin-bottom: var(--space-lg);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.camera-config-form form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-row label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #cbd5e1;
+}
+
+.form-row input {
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
+}
+
+.form-row input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+}
+
+.form-row input::placeholder {
+  color: #64748b;
+}
+
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.form-row-2col > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-row-2col > div label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #cbd5e1;
+}
+
+.form-row-2col > div input {
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
+}
+
+.form-row-2col > div input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+}
+
+.form-row-2col > div input::placeholder {
+  color: #64748b;
+}
+
+.camera-config-form .btn {
+  align-self: flex-start;
+  margin-top: var(--space-sm);
+}
+
+.camera-config-form .config-status {
+  display: inline-block;
+  margin-left: var(--space-md);
+  vertical-align: middle;
+}
+
 /* ── Logs Panel ─────────────────────────────────────────────────────────── */
 .panel-logs {
   flex: 1;
@@ -1365,72 +1494,103 @@ body {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── Family Dashboard: Memories Upload Section ─────────────────────────── */
-.memories-section {
-  background: var(--color-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+.panel-memories {
+  flex-shrink: 0;
+}
+
+.memories-upload {
   padding: var(--space-lg);
-  margin-bottom: var(--space-lg);
 }
 
-.memories-section h2 {
-  margin: 0 0 var(--space-sm);
-  font-size: 1.25rem;
+.memories-section-title {
+  margin: 0 0 var(--space-xs);
+  font-size: 1.1rem;
+  font-weight: 600;
   color: var(--color-foreground);
+  font-family: var(--font-heading);
 }
 
-.memories-section p {
-  margin: 0 0 var(--space-md);
+.memories-desc {
+  margin: 0 0 var(--space-lg);
   color: #94a3b8;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
 }
 
-.memory-form {
-  display: flex;
-  flex-wrap: wrap;
+/* ── Symmetrical 4-Column Form Layout ─────────────────────────────────── */
+.memory-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: var(--space-md);
-  align-items: flex-end;
+  align-items: end;
 }
 
-.memory-form .form-group {
+.memory-form-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-  flex: 1;
-  min-width: 180px;
+  gap: 6px;
 }
 
-.memory-form .form-group label {
-  font-size: 0.8125rem;
+.memory-form-label {
+  font-size: 0.75rem;
   font-weight: 600;
   color: #cbd5e1;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.04em;
 }
 
-.memory-form .form-group input {
+.memory-form-input {
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-background);
   color: var(--color-foreground);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-family: var(--font-body);
-  transition: border-color 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
 }
 
-.memory-form .form-group input:focus {
+.memory-form-input:focus {
   outline: none;
   border-color: var(--color-accent);
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
 }
 
-.memory-form .form-group input[type="file"] {
-  padding: 8px;
-  cursor: pointer;
+.memory-file-input-wrapper {
+  position: relative;
+  height: 42px;
+  display: flex;
+  align-items: center;
 }
 
-.memory-form .form-group input[type="file"]::file-selector-button {
+.memory-form-file {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-size: 0.8125rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.memory-form-file:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.memory-form-file::file-selector-button {
   background: var(--color-secondary);
   color: var(--color-foreground);
   border: none;
@@ -1438,38 +1598,32 @@ body {
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-family: var(--font-body);
+  font-size: 0.8125rem;
   margin-right: 10px;
-}
-
-.memory-form .btn-upload-memory {
-  padding: 10px 24px;
-  background: var(--color-accent);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  font-size: 0.9375rem;
-  cursor: pointer;
   transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  height: 30px;
+}
+
+.memory-form-file::file-selector-button:hover {
+  background: var(--color-border);
+}
+
+.btn-memory-upload {
+  width: 100%;
+  justify-content: center;
+  padding: 0 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  height: 42px;
+  box-sizing: border-box;
   white-space: nowrap;
-}
-
-.memory-form .btn-upload-memory:hover {
-  background: var(--color-accent-hover);
-}
-
-.memory-form .btn-upload-memory:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .memory-status {
   font-size: 0.8125rem;
-  margin-top: var(--space-sm);
+  margin-top: var(--space-md);
   min-height: 20px;
+  padding: 0 var(--space-lg);
 }
 
 .memory-status.success {
@@ -1478,6 +1632,24 @@ body {
 
 .memory-status.error {
   color: var(--color-destructive);
+}
+
+/* ── Memories Gallery Header ──────────────────────────────────────────── */
+.memories-gallery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--space-lg);
+  margin-bottom: var(--space-sm);
+}
+
+.btn-clear-memories {
+  color: #ef4444 !important;
+  font-size: 0.75rem;
+}
+
+.btn-clear-memories:hover {
+  background: rgba(239, 68, 68, 0.12) !important;
 }
 
 /* ── Family Dashboard: Memories Gallery ────────────────────────────────── */

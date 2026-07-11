@@ -260,6 +260,28 @@ def get_log_count() -> int:
     return int(row["total"]) if row else 0
 
 
+def delete_log(log_id: int) -> bool:
+    """Delete a single activity log by ID. Returns True if deleted."""
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM daily_logs WHERE id = ?", (log_id,))
+    connection.commit()
+    deleted = cursor.rowcount > 0
+    connection.close()
+    return deleted
+
+
+def delete_all_logs() -> int:
+    """Delete all activity logs. Returns number of deleted rows."""
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM daily_logs")
+    connection.commit()
+    count = cursor.rowcount
+    connection.close()
+    return count
+
+
 # =========================================================
 # REFERENCE PHOTOS
 # =========================================================

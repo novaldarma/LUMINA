@@ -323,44 +323,58 @@
           </div>
 
           <div class="memories-upload">
-            <h3>Share a Memory</h3>
-            <p class="text-muted">
+            <h3 class="memories-section-title">Share a Memory</h3>
+            <p class="text-muted memories-desc">
               Upload a photo of a guest or relative so the patient can recognize
               them. These photos are NOT used for face recognition.
             </p>
-            <form id="memoryForm" enctype="multipart/form-data">
-              <div class="memory-form-row">
-                <div class="memory-field">
-                  <label for="memoryName">Person's Name</label>
+            <form
+              id="memoryForm"
+              enctype="multipart/form-data"
+              class="memory-form-grid"
+            >
+              <div class="memory-form-field">
+                <label for="memoryName" class="memory-form-label"
+                  >Person's Name</label
+                >
+                <input
+                  type="text"
+                  id="memoryName"
+                  class="memory-form-input"
+                  placeholder="e.g. Uncle John"
+                  required
+                  maxlength="100"
+                />
+              </div>
+              <div class="memory-form-field">
+                <label for="memoryRelation" class="memory-form-label"
+                  >Relationship</label
+                >
+                <input
+                  type="text"
+                  id="memoryRelation"
+                  class="memory-form-input"
+                  placeholder="e.g. Father's Brother"
+                  required
+                  maxlength="100"
+                />
+              </div>
+              <div class="memory-form-field memory-form-field-file">
+                <label for="memoryPhoto" class="memory-form-label">Photo</label>
+                <div class="memory-file-input-wrapper">
                   <input
-                    type="text"
-                    id="memoryName"
-                    placeholder="e.g. Uncle John"
+                    type="file"
+                    id="memoryPhoto"
+                    class="memory-form-file"
+                    accept=".jpg,.jpeg,.png,.bmp"
                     required
-                    maxlength="100"
-                  />
-                </div>
-                <div class="memory-field">
-                  <label for="memoryRelation">Relationship</label>
-                  <input
-                    type="text"
-                    id="memoryRelation"
-                    placeholder="e.g. Father's Brother"
-                    required
-                    maxlength="100"
                   />
                 </div>
               </div>
-              <div class="memory-file-row">
-                <input
-                  type="file"
-                  id="memoryPhoto"
-                  accept=".jpg,.jpeg,.png,.bmp"
-                  required
-                />
+              <div class="memory-form-field memory-form-field-action">
                 <button
                   type="submit"
-                  class="btn btn-primary"
+                  class="btn btn-primary btn-memory-upload"
                   id="btnUploadMemory"
                 >
                   <i data-lucide="upload" class="icon-sm"></i>
@@ -375,21 +389,12 @@
             ></div>
           </div>
 
-          <div
-            class="memories-gallery-header"
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 0.5rem;
-            "
-          >
+          <div class="memories-gallery-header">
             <span class="text-muted text-sm">Shared Memories</span>
             <button
-              class="btn btn-ghost btn-sm"
+              class="btn btn-ghost btn-sm btn-clear-memories"
               id="btnClearMemories"
               title="Clear all memories"
-              style="color: #ef4444"
             >
               <i data-lucide="trash-2" class="icon-sm"></i> Clear All
             </button>
@@ -423,6 +428,14 @@
               >
                 <i data-lucide="refresh-cw" class="icon-sm"></i>
               </button>
+              <button
+                class="btn btn-ghost btn-sm btn-clear-logs"
+                id="btnClearLogs"
+                aria-label="Clear all history"
+                title="Delete all logs"
+              >
+                <i data-lucide="trash-2" class="icon-sm"></i> Clear All
+              </button>
             </div>
           </div>
 
@@ -453,6 +466,7 @@
                     <th scope="col">Status</th>
                     <th scope="col">Activity</th>
                     <th scope="col">Snapshot</th>
+                    <th scope="col" class="th-actions">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="logTableBody"></tbody>

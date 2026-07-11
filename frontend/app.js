@@ -65,6 +65,7 @@ const dom = {
   cameraUrl: $("#cameraUrl"),
   cameraUsername: $("#cameraUsername"),
   cameraPassword: $("#cameraPassword"),
+  btnSaveCamera: $("#btnSaveCamera"),
   cameraConfigStatus: $("#cameraConfigStatus"),
 
   // Memories (TASK 3)
@@ -329,6 +330,24 @@ async function apiGetLogs() {
   }
 }
 
+async function apiDeleteLog(id) {
+  try {
+    return await apiRequest(`/api/logs/${id}`, { method: "DELETE" });
+  } catch (error) {
+    console.error("[LUMINA] Delete log error:", error);
+    return { success: false, detail: error.message };
+  }
+}
+
+async function apiDeleteAllLogs() {
+  try {
+    return await apiRequest("/api/logs", { method: "DELETE" });
+  } catch (error) {
+    console.error("[LUMINA] Delete all logs error:", error);
+    return { success: false, detail: error.message };
+  }
+}
+
 async function apiUploadReference(file) {
   try {
     const formData = new FormData();
@@ -401,6 +420,35 @@ async function apiUpdatePatientConfig(payload) {
 }
 
 /* =========================================================
+   CAMERA CONFIG API
+   ========================================================= */
+
+async function apiGetCameraConfig() {
+  try {
+    return await apiRequest("/api/camera-config");
+  } catch (error) {
+    console.error("[LUMINA] Get camera config error:", error);
+    return null;
+  }
+}
+
+async function apiUpdateCameraConfig(payload) {
+  try {
+    return await apiRequest("/api/camera-config", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    console.error("[LUMINA] Update camera config error:", error);
+    return {
+      success: false,
+      message: error.message || "Cannot connect to backend.",
+    };
+  }
+}
+
+/* =========================================================
    MEMORIES API (TASK 3)
    ========================================================= */
 
@@ -439,39 +487,6 @@ async function apiDeleteMemory(id) {
   } catch (error) {
     console.error("[LUMINA] Memory delete error:", error);
     return { success: false, detail: error.message };
-  }
-}
-
-/* =========================================================
-   CAMERA CONFIG API
-   ========================================================= */
-
-async function apiGetCameraConfig() {
-  try {
-    return await apiRequest("/api/camera-config");
-  } catch (error) {
-    console.error("[LUMINA] Get camera config error:", error);
-    return null;
-  }
-}
-
-async function apiUpdateCameraConfig(url, username, password) {
-  try {
-    return await apiRequest("/api/camera-config", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        camera_url: url,
-        camera_username: username,
-        camera_password: password,
-      }),
-    });
-  } catch (error) {
-    console.error("[LUMINA] Update camera config error:", error);
-    return {
-      success: false,
-      message: error.message || "Cannot connect to backend.",
-    };
   }
 }
 
@@ -519,7 +534,11 @@ async function saveCameraConfig() {
   const username = dom.cameraUsername?.value.trim() || "";
   const password = dom.cameraPassword?.value || "";
 
-  const result = await apiUpdateCameraConfig(url, username, password);
+  const result = await apiUpdateCameraConfig({
+    camera_url: url,
+    camera_username: username,
+    camera_password: password,
+  });
 
   if (result.success !== false) {
     if (dom.cameraConfigStatus) {
@@ -960,7 +979,24 @@ function renderLogs(logs) {
       snapshotCell.style.color = "#64748B";
     }
 
-    row.append(timeCell, statusCell, activityCell, snapshotCell);
+    // Actions cell with delete button
+    const actionsCell = document.createElement("td");
+    actionsCell.className = "td-actions";
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "btn btn-ghost btn-sm btn-delete-log";
+    deleteBtn.setAttribute("aria-label", "Delete this log");
+    deleteBtn.title = "Delete this log";
+    deleteBtn.innerHTML = '<i data-lucide="trash-2" class="icon-sm"></i>';
+
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteLogEntry(log.id, row);
+    });
+
+    actionsCell.appendChild(deleteBtn);
+
+    row.append(timeCell, statusCell, activityCell, snapshotCell, actionsCell);
 
     row.addEventListener("click", () => {
       openDetailModal(log);
@@ -975,6 +1011,51 @@ function renderLogs(logs) {
 
     dom.logTableBody?.appendChild(row);
   });
+
+  refreshIcons();
+}
+
+async function deleteLogEntry(logId, rowElement) {
+  const result = await apiDeleteLog(logId);
+  if (result.success !== false) {
+    showToast("Log deleted.", "success");
+    if (rowElement) {
+      rowElement.style.opacity = "0";
+      rowElement.style.transition = "opacity 0.3s";
+      setTimeout(() => {
+        rowElement.remove();
+        // Update count
+        const remaining = dom.logTableBody?.querySelectorAll("tr").length || 0;
+        if (dom.logCount) {
+          dom.logCount.textContent = `${remaining} entries`;
+        }
+        if (remaining === 0) {
+          dom.logsEmpty?.classList.remove("hidden");
+          dom.logTableWrapper?.classList.add("hidden");
+        }
+      }, 300);
+    }
+  } else {
+    showToast(result.detail || "Failed to delete log.", "error");
+  }
+}
+
+async function deleteAllLogs() {
+  if (
+    !confirm(
+      "Are you sure you want to delete ALL analysis history? This cannot be undone.",
+    )
+  ) {
+    return;
+  }
+
+  const result = await apiDeleteAllLogs();
+  if (result.success !== false) {
+    showToast(result.message || "All logs deleted.", "success");
+    await refreshLogs();
+  } else {
+    showToast(result.detail || "Failed to delete logs.", "error");
+  }
 }
 
 /* =========================================================
@@ -1487,6 +1568,9 @@ dom.uploadForm?.addEventListener("submit", (event) => {
 });
 
 dom.btnRefresh?.addEventListener("click", refreshLogs);
+
+const btnClearLogs = document.getElementById("btnClearLogs");
+btnClearLogs?.addEventListener("click", deleteAllLogs);
 
 dom.btnModalClose?.addEventListener("click", closeDetailModal);
 
