@@ -17,7 +17,15 @@
 
 ## 📖 Overview
 
-**LUMINA** is an intelligent monitoring system designed to ensure the safety and well-being of Alzheimer patients. It combines **computer vision**, **face recognition**, **GPS geofencing**, and **emotion detection** to provide real-time alerts and peace of mind for families and caregivers.
+**LUMINA** is an intelligent monitoring system designed to ensure the safety and well‑being of Alzheimer patients. It combines **computer vision**, **face recognition**, **GPS geofencing**, and **emotion detection** to provide real‑time alerts and peace of mind for families and caregivers.
+
+## Problem Statement
+
+Alzheimer’s disease affects millions worldwide, and patients often wander or become confused, putting them at risk of injury or getting lost. Existing solutions are either costly, require complex hardware, or lack real‑time monitoring capabilities. **LUMINA** addresses this gap by offering an affordable, AI‑driven system that monitors patients via CCTV, detects unsafe situations, and notifies caregivers instantly.
+
+## AMD Infrastructure
+
+The project leverages AMD’s latest AI acceleration stack to run computer‑vision models efficiently on modest hardware. By using AMD‑optimized PyTorch builds and the Radeon™ Open Compute (ROCm) platform, LUMINA achieves low‑latency inference for face detection, emotion analysis, and object tracking, enabling real‑time processing on edge devices without relying on cloud services.
 
 ### 🎯 Key Features
 
