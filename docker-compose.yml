@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  lumina-api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./lumina_core.db:/app/lumina_core.db
+      - ./uploads:/app/uploads
+    env_file:
+      - .env
+    restart: unless-stopped

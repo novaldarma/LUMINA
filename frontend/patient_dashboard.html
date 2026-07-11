@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>LUMINA Patient Dashboard</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body class="patient-body">
+    <header class="patient-header">
+      <div class="patient-header-inner">
+        <a href="index.html">← Home</a>
+        <div>
+          <h1>LUMINA</h1>
+          <p>Your memory and safety companion</p>
+        </div>
+        <a href="family_dashboard.html">Family Dashboard →</a>
+      </div>
+    </header>
+
+    <main class="patient-main">
+      <div class="patient-clock" id="clock">--:--</div>
+
+      <div class="patient-date" id="dateText">Loading date...</div>
+
+      <section class="patient-status-card">
+        <h2>Location Status</h2>
+
+        <div id="zoneStatus" class="patient-warning">
+          Location tracking is not active
+        </div>
+
+        <p id="locationDetail">
+          Press “Enable Location” to begin location monitoring.
+        </p>
+      </section>
+
+      <section class="patient-button-grid">
+        <button id="btnLocation" class="patient-btn patient-btn-location">
+          📍 Enable Location
+        </button>
+
+        <button id="btnRecap" class="patient-btn patient-btn-primary">
+          🧠 What Did I Do Today?
+        </button>
+
+        <a class="patient-btn patient-btn-family" href="family_dashboard.html">
+          👨‍👩‍👧 Family Dashboard
+        </a>
+
+        <button id="btnSpeak" class="patient-btn patient-btn-primary">
+          🔊 Read the Answer Aloud
+        </button>
+
+        <button id="btnSOS" class="patient-btn patient-btn-sos patient-sos-btn">
+          🆘 REQUEST HELP
+        </button>
+      </section>
+
+      <section class="patient-answer-card">
+        <h2>LUMINA Answer</h2>
+
+        <p id="answerText">
+          Hello. Press one of the buttons above to review your activities for
+          today.
+        </p>
+      </section>
+
+      <section class="patient-memories-card">
+        <h2>📸 Who's Visiting Today?</h2>
+        <p>Family members and friends who may come to see you:</p>
+        <div class="patient-memories-grid" id="patientMemoriesGrid">
+          <div class="patient-memories-empty" id="patientMemoriesEmpty">
+            <p>
+              No memories shared yet. Ask your family to upload photos from the
+              Family Dashboard.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Memory Enlarge Popup -->
+      <div
+        class="memory-popup-overlay hidden"
+        id="memoryPopup"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Enlarged memory photo"
+      >
+        <div class="memory-popup-card">
+          <button
+            class="memory-popup-close"
+            id="btnMemoryPopupClose"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+          <img id="memoryPopupImage" src="" alt="Enlarged memory photo" />
+          <div class="memory-popup-info">
+            <div class="memory-popup-name" id="memoryPopupName"></div>
+            <div class="memory-popup-relation" id="memoryPopupRelation"></div>
+          </div>
+        </div>
+      </div>
+
+      <section class="patient-setup-card">
+        <h2>Safe-Zone Setup for Family</h2>
+
+        <p>
+          While you are at home, press the button below once to save your
+          current position as the home location.
+        </p>
+
+        <div class="patient-setup-row">
+          <label>
+            Radius:
+
+            <input id="radiusInput" type="number" value="100" min="20" />
+
+            meters
+          </label>
+
+          <button id="btnSetHome" class="patient-btn patient-btn-primary">
+            Set Current Location as Home
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // Gunakan relative URL — frontend diserve dari server yang sama
+      const API_BASE_URL = "";
+
+      let latestPosition = null;
+      let latestAnswer = "";
+      let locationWatchId = null;
+      let lastLocationSentAt = 0;
+
+      const zoneStatus = document.getElementById("zoneStatus");
+
+      const locationDetail = document.getElementById("locationDetail");
+
+      const answerText = document.getElementById("answerText");
+
+      function updateClock() {
+        const now = new Date();
+
+        document.getElementById("clock").textContent = now.toLocaleTimeString(
+          "en-US",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+          },
+        );
+
+        document.getElementById("dateText").textContent =
+          now.toLocaleDateString("en-US", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          });
+      }
+
+      function speak(text) {
+        if (!text) {
+          return;
+        }
+
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+
+        utterance.lang = "en-US";
+        utterance.rate = 0.85;
+
+        window.speechSynthesis.speak(utterance);
+      }
+
+      async function sendLocation(position) {
+        latestPosition = position;
+
+        const currentTime = Date.now();
+
+        // Send at most once every 10 seconds.
+        if (currentTime - lastLocationSentAt < 10000) {
+          return;
+        }
+
+        lastLocationSentAt = currentTime;
+
+        const payload = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+          device_id: "patient-dashboard",
+        };
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/location`, {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const result = await response.json();
+
+          if (!result.safe_zone_configured) {
+            zoneStatus.textContent = "The safe zone has not been configured";
+
+            zoneStatus.className = "patient-warning";
+
+            locationDetail.textContent =
+              "The device location was found, but the " +
+              "home location has not been saved.";
+
+            return;
+          }
+
+          const distance = Math.round(result.distance_from_home || 0);
+
+          if (result.inside_safe_zone) {
+            zoneStatus.textContent = "SAFE — Inside the Home Safe Zone";
+
+            zoneStatus.className = "patient-safe";
+
+            locationDetail.textContent = `The device is approximately ${distance} meters from home.`;
+          } else {
+            zoneStatus.textContent = "ATTENTION — Outside the Safe Zone";
+
+            zoneStatus.className = "patient-danger";
+
+            locationDetail.textContent = `The device is approximately ${distance} meters from home.`;
+
+            speak(
+              "You are currently outside the safe zone. " +
+                "Press the help button if you need assistance.",
+            );
+          }
+        } catch (error) {
+          console.error(error);
+
+          zoneStatus.textContent = "Unable to connect to the server";
+
+          zoneStatus.className = "patient-danger";
+
+          locationDetail.textContent =
+            "Please make sure the LUMINA backend is running.";
+        }
+      }
+
+      function startLocationTracking() {
+        if (!navigator.geolocation) {
+          alert("This browser does not support location services.");
+
+          return;
+        }
+
+        if (locationWatchId !== null) {
+          alert("Location monitoring is already active.");
+
+          return;
+        }
+
+        zoneStatus.textContent = "Finding your current location...";
+
+        zoneStatus.className = "patient-warning";
+
+        locationWatchId = navigator.geolocation.watchPosition(
+          sendLocation,
+
+          (error) => {
+            console.error(error);
+
+            zoneStatus.textContent = "Location permission is unavailable";
+
+            zoneStatus.className = "patient-danger";
+
+            locationDetail.textContent =
+              "Allow location access in your browser settings.";
+          },
+
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 5000,
+          },
+        );
+      }
+
+      function setHomeLocation() {
+        const radius = Number(document.getElementById("radiusInput").value);
+
+        if (!navigator.geolocation) {
+          alert("This browser does not support location services.");
+
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            latestPosition = position;
+
+            try {
+              const response = await fetch(`${API_BASE_URL}/api/safe-zone`, {
+                method: "PUT",
+
+                headers: {
+                  "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify({
+                  home_latitude: position.coords.latitude,
+
+                  home_longitude: position.coords.longitude,
+
+                  radius_meters: radius,
+                  enabled: true,
+                }),
+              });
+
+              const result = await response.json();
+
+              if (result.success) {
+                alert(
+                  `The home location was saved with a ${radius}-meter safe-zone radius.`,
+                );
+
+                if (locationWatchId === null) {
+                  startLocationTracking();
+                }
+              } else {
+                alert("The safe zone could not be saved.");
+              }
+            } catch (error) {
+              console.error(error);
+
+              alert("Unable to connect to the LUMINA backend.");
+            }
+          },
+
+          () => {
+            alert(
+              "Your location is unavailable. " +
+                "Please allow location access.",
+            );
+          },
+
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+          },
+        );
+      }
+
+      async function loadTodayRecap() {
+        answerText.textContent =
+          "LUMINA is reviewing today's activity records...";
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/patient/today`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const result = await response.json();
+
+          latestAnswer = result.answer;
+          answerText.textContent = result.answer;
+
+          speak(result.answer);
+        } catch (error) {
+          console.error(error);
+
+          answerText.textContent =
+            "Today's activity record is currently unavailable.";
+        }
+      }
+
+      async function sendSOS() {
+        const confirmed = confirm(
+          "Send an emergency assistance request to your family?",
+        );
+
+        if (!confirmed) {
+          return;
+        }
+
+        const payload = {
+          latitude: latestPosition?.coords.latitude ?? null,
+
+          longitude: latestPosition?.coords.longitude ?? null,
+        };
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/sos`, {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const result = await response.json();
+
+          if (result.success) {
+            latestAnswer =
+              "Your emergency assistance request has been sent to your family.";
+
+            answerText.textContent = latestAnswer;
+
+            speak(
+              "Your assistance request has been sent. " +
+                "Please remain calm. Your family will check on you.",
+            );
+          }
+        } catch (error) {
+          console.error(error);
+
+          alert("The emergency request could not be sent.");
+        }
+      }
+
+      document
+        .getElementById("btnLocation")
+        .addEventListener("click", startLocationTracking);
+
+      document
+        .getElementById("btnSetHome")
+        .addEventListener("click", setHomeLocation);
+
+      document
+        .getElementById("btnRecap")
+        .addEventListener("click", loadTodayRecap);
+
+      document.getElementById("btnSpeak").addEventListener("click", () => {
+        speak(latestAnswer || answerText.textContent);
+      });
+
+      document.getElementById("btnSOS").addEventListener("click", sendSOS);
+
+      async function loadPatientMemories() {
+        const grid = document.getElementById("patientMemoriesGrid");
+        const empty = document.getElementById("patientMemoriesEmpty");
+        if (!grid) return;
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/memories?limit=20`);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const data = await response.json();
+          const memories = data.memories || [];
+
+          grid.innerHTML = "";
+
+          if (memories.length === 0) {
+            if (empty) {
+              empty.style.display = "block";
+              grid.appendChild(empty);
+            }
+            return;
+          }
+
+          if (empty) empty.style.display = "none";
+
+          memories.forEach((mem) => {
+            const card = document.createElement("div");
+            card.className = "patient-memory-card";
+
+            if (mem.photo_base64) {
+              const img = document.createElement("img");
+              img.src = `data:image/jpeg;base64,${mem.photo_base64}`;
+              img.alt = `Photo of ${mem.person_name}`;
+              img.className = "patient-memory-photo";
+              img.loading = "lazy";
+              card.appendChild(img);
+            }
+
+            const info = document.createElement("div");
+            info.className = "patient-memory-info";
+
+            const nameEl = document.createElement("div");
+            nameEl.className = "patient-memory-name";
+            nameEl.textContent = mem.person_name || "Unknown";
+
+            const relEl = document.createElement("div");
+            relEl.className = "patient-memory-relation";
+            relEl.textContent = mem.relationship || "";
+
+            info.appendChild(nameEl);
+            info.appendChild(relEl);
+            card.appendChild(info);
+
+            // Click to enlarge
+            card.addEventListener("click", () => {
+              const popup = document.getElementById("memoryPopup");
+              const popupImg = document.getElementById("memoryPopupImage");
+              const popupName = document.getElementById("memoryPopupName");
+              const popupRel = document.getElementById("memoryPopupRelation");
+              if (popup && popupImg && mem.photo_base64) {
+                popupImg.src = `data:image/jpeg;base64,${mem.photo_base64}`;
+                if (popupName)
+                  popupName.textContent = mem.person_name || "Unknown";
+                if (popupRel) popupRel.textContent = mem.relationship || "";
+                popup.classList.remove("hidden");
+              }
+            });
+
+            grid.appendChild(card);
+          });
+        } catch (error) {
+          console.error("Memories load error:", error);
+        }
+      }
+
+      // Memory popup close handlers
+      document
+        .getElementById("btnMemoryPopupClose")
+        ?.addEventListener("click", () => {
+          document.getElementById("memoryPopup")?.classList.add("hidden");
+        });
+      document.getElementById("memoryPopup")?.addEventListener("click", (e) => {
+        if (e.target === document.getElementById("memoryPopup")) {
+          document.getElementById("memoryPopup").classList.add("hidden");
+        }
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          document.getElementById("memoryPopup")?.classList.add("hidden");
+        }
+      });
+
+      updateClock();
+      loadPatientMemories();
+
+      setInterval(updateClock, 1000);
+      setInterval(loadPatientMemories, 30000);
+    </script>
+  </body>
+</html>
