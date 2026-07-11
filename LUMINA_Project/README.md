@@ -1,6 +1,10 @@
 # 🧠 LUMINA — AI-Powered Alzheimer Patient Monitoring System
 
-> **AMD ACT-II Hackathon Submission**  
+<!-- Banner image (replace with real project cover) -->
+
+![LUMINA Banner](https://via.placeholder.com/1200x300?text=LUMINA+Project+Banner)
+
+> **AMD ACT‑II Hackathon Submission**  
 > Computer Vision + AI for real-time Alzheimer patient safety monitoring
 
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
@@ -45,6 +49,10 @@ A dual-dashboard system that bridges the gap between patients and caregivers:
 ---
 
 ## 🏗️ Architecture
+
+<!-- Architecture diagram (replace with real diagram image) -->
+
+![Architecture Diagram](https://via.placeholder.com/800x400?text=Architecture+Diagram)
 
 ```
 ┌──────────────────────────────────────────────────────┐
@@ -229,21 +237,31 @@ LUMINA/
 
 ## 🎬 Demo
 
-- **Live URL:** `http://localhost:8000` (local deployment)
-- **Video Demo:** [YouTube — coming soon]
-- **Slide Deck:** [Google Slides — coming soon]
-- **Live URL:** `https://lumina-demo.amd.com` _(replace with your deployed endpoint)_
-- **Video Demo:** [YouTube – LUMINA Demo](https://www.youtube.com/watch?v=PLACEHOLDER)
-- **Slide Deck:** [Google Slides – LUMINA Presentation](https://docs.google.com/presentation/d/PLACEHOLDER)
+<!-- Dashboard screenshots (replace with actual screenshots) -->
+
+![Family Dashboard](https://via.placeholder.com/800x400?text=Family+Dashboard+Screenshot)
+![Patient Dashboard](https://via.placeholder.com/800x400?text=Patient+Dashboard+Screenshot)
+
+- **Live URL (local):** `http://localhost:8000` – the Docker/local run instance.
+- **Live URL (deployed):** `<YOUR_DEPLOYED_URL>` – replace with the publicly accessible endpoint (e.g., on AMD Developer Cloud).
+- **Video Demo:** `<YOUR_YOUTUBE_LINK>` – replace with the final YouTube video URL.
+- **Slide Deck:** `<YOUR_SLIDES_LINK>` – replace with the final Google Slides URL.
+
+> **NOTE:** The placeholders above must be filled before final submission.
 
 ---
 
 ## 👥 Team
 
-| Name          | Role                         |
-| ------------- | ---------------------------- |
-| [Your Name]   | Backend, Computer Vision, AI |
-| [Team Member] | Frontend, UI/UX              |
+The project **LUMINA** is developed by **Team MemoriLink** for the AMD ACT‑II Hackathon.
+
+| Name                           | Role                         |
+| ------------------------------ | ---------------------------- |
+| Muhamad Noval Darmawan         | Backend, Computer Vision, AI |
+| Sahra Raditiya Fadillah        | Frontend, UI/UX              |
+| Syeftyan Eka Fauzia Rosyidin   | Data Engineering             |
+| Fauzia Nisrina Salsabila       | Project Management           |
+| Jovelio Curtis Ibrani Manurung | Documentation & Presentation |
 
 ---
 
