@@ -25,35 +25,40 @@ Alzheimer’s disease affects millions worldwide, and patients often wander or b
 
 ## AMD Infrastructure
 
-### Why AMD infrastructure matters
+### 1. Why AMD infrastructure is relevant for this project
 
-LUMINA processes video streams and runs deep‑learning models for face detection, emotion analysis, and object tracking. AMD GPUs, combined with the ROCm software stack, provide the low‑latency, high‑throughput inference needed for real‑time monitoring on edge devices while keeping hardware costs affordable.
+LUMINA constantly analyses video frames to detect faces, recognise colour‑based clothing patterns and infer emotional state. These workloads are **compute‑intensive** and benefit from the high‑throughput, low‑latency inference that AMD GPUs (via the ROCm stack) provide, especially on edge‑deployed devices where a powerful yet cost‑effective accelerator is required.
 
-### Design for AMD deployment
+### 2. How the system is designed to support AMD deployment
 
-The backend isolates vision‑related logic behind a **provider interface**. The default provider can be swapped for an AMD‑optimized implementation that uses the ROCm‑enabled PyTorch libraries. No other part of the application needs to change – the provider is instantiated based on configuration at start‑up.
+All vision‑related operations are accessed through a **`VisionProvider` abstraction**. The default provider ships a lightweight, CPU‑based implementation, but an alternative provider that uses ROCm‑enabled PyTorch can be selected at runtime. No other module in the code‑base needs to be aware of the underlying hardware.
 
-### Configurable environment variables
+### 3. Configurable environment variables for AMD integration
 
-- **AMD_VISION_URL** – URL of the AMD‑hosted inference service (e.g., a REST endpoint exposing the model).
-- **AMD_MODEL_NAME** – Identifier of the specific vision model to load on the AMD service.
-  These variables are read at runtime and passed to the provider, allowing the same codebase to point at different inference back‑ends without code changes.
+- **`AMD_VISION_URL`** – The HTTP endpoint of an AMD‑hosted inference service (e.g., a REST API exposing a model).
+- **`AMD_MODEL_NAME`** – The identifier of the specific model deployed on that service.
 
-### Provider‑based architecture
+These variables are read when the application starts and passed to the AMD provider, allowing the same source code to target any compatible AMD inference service simply by changing the environment.
 
-LUMINA employs a **provider‑based architecture** for vision inference. The application core calls a generic `VisionProvider` interface; concrete implementations (AMD, OpenAI, local ONNX, etc.) fulfil this contract. This design enables easy replacement of the inference backend while keeping the business logic untouched.
+### 4. Provider‑based architecture enables backend replacement
 
-### Development with an alternative endpoint
+The core application calls the generic `VisionProvider` interface. Concrete implementations (AMD, OpenAI, local ONNX, etc.) fulfil this contract. Swapping the provider does **not** require changes to the business logic, routing, or database layers.
 
-During development we often lack continuous access to AMD GPU resources. Therefore the default configuration points at a compatible, cloud‑based inference endpoint that mimics the AMD API. Switching to an actual AMD‑hosted service simply requires updating the two environment variables.
+### 5. Development with an alternative compatible endpoint
 
-### Simple deployment configuration
+During development we often do **not** have continuous access to AMD GPU resources. The project therefore defaults to a cloud‑based inference endpoint that mimics the AMD API. By updating `AMD_VISION_URL` and `AMD_MODEL_NAME` developers can instantly switch between the placeholder service and a real AMD‑hosted service.
 
-Deploying on AMD hardware does **not** require code modifications. Provision an AMD GPU node, set `AMD_VISION_URL` and `AMD_MODEL_NAME` in the `.env` file (or container environment), and the application will automatically use the AMD provider.
+### 6. Simple deployment on AMD hardware
+
+Deploying on an AMD GPU node is straightforward:
+
+1. Provision a machine with an AMD GPU and the ROCm drivers installed.
+2. Set `AMD_VISION_URL` and `AMD_MODEL_NAME` in the `.env` file or container environment.
+3. Start the application – the AMD provider is automatically used. No source‑code changes are required.
 
 #### Future Deployment
 
-The project is fully deployment‑ready for AMD infrastructure. Once AMD GPU resources become available, connecting the application to an AMD‑hosted inference endpoint is a matter of updating the environment variables – no further code changes are needed.
+The project is **deployment‑ready** for AMD infrastructure. When AMD GPU resources become available, connecting the system to an AMD‑hosted inference endpoint is a matter of configuring the two environment variables; the rest of the application remains unchanged.
 
 ### 🎯 Key Features
 

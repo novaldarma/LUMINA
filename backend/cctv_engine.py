@@ -376,19 +376,67 @@ class CCTVMaster:
             headers = {"User-Agent": "Mozilla/5.0 (compatible; LUMINA-VisionNode/1.0)"}
 
             session = requests.Session()
-            resp = session.get(
-                self.camera_url,
-                auth=auth,
-                headers=headers,
-                stream=True,
-                timeout=(5, 15),  # (connect timeout, read timeout) — generous read timeout
-            )
-            resp.raise_for_status()
+            # Try the primary URL first. If it fails, attempt a few common alternatives
+            candidate_urls = [self.camera_url]
+            # If the URL ends with a filename (e.g., /shot.jpg), also try the base path
+            if self.camera_url.rsplit('/', 1)[-1].count('.') > 0:
+                base = self.camera_url.rsplit('/', 1)[0]
+                candidate_urls.append(base + "/")
+                # Common MJPEG endpoint used by many IP cameras
+                candidate_urls.append(base + "/video")
+                candidate_urls.append(base + "/stream")
 
-            logger.info("✅ MJPEG stream connected (persistent): %s", self.camera_url[:60])
-            self._camera_status = "streaming"
-            self._capture_backend = "mjpeg_persistent"
+            successful = False
+            for url in candidate_urls:
+                try:
+                    resp = session.get(
+                        url,
+                        auth=auth,
+                        headers=headers,
+                        stream=True,
+                        timeout=(5, 15),
+                    )
+                    resp.raise_for_status()
+                    logger.info("✅ MJPEG stream connected (persistent): %s", url[:60])
+                    self._camera_status = "streaming"
+                    self._capture_backend = "mjpeg_persistent"
+                    successful = True
+                    break
+                except Exception as e:
+                    logger.debug("MJPEG attempt failed for %s: %s", url, e)
+                    continue
 
+            if not successful:
+                # Fallback: try a single-frame GET (many IP cameras expose only a still image)
+                for url in candidate_urls:
+                    try:
+                        resp = session.get(
+                            url,
+                            auth=auth,
+                            headers=headers,
+                            timeout=(5, 15),
+                        )
+                        resp.raise_for_status()
+                        img_data = resp.content
+                        frame = cv2.imdecode(np.frombuffer(img_data, dtype=np.uint8), cv2.IMREAD_COLOR)
+                        if frame is not None and frame.size > 0:
+                            with self._frame_lock:
+                                self._latest_frame = frame
+                            self._last_frame_time = time.time()
+                            self._camera_status = "streaming"
+                            self._capture_backend = "single_snapshot"
+                            logger.info("✅ Fallback single snapshot fetched from %s", url[:60])
+                            session.close()
+                            return 1  # report one frame received
+                    except Exception as e:
+                        logger.debug("Single‑snapshot attempt failed for %s: %s", url, e)
+                        continue
+
+                logger.warning("All MJPEG and snapshot attempts failed for %s", self.camera_url)
+                session.close()
+                return 0
+
+            # If we reached here we have a streaming response
             buffer = bytearray()
 
             for chunk in resp.iter_content(chunk_size=4096):
@@ -432,7 +480,6 @@ class CCTVMaster:
                     buffer.clear()
 
             resp.close()
-
         except requests.exceptions.RequestException as e:
             logger.warning("📡 MJPEG stream dropped: %s", e)
         except Exception as e:
