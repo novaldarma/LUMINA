@@ -241,8 +241,8 @@ LUMINA/
 ![Patient Dashboard](docs/screenshots/patient-dashboard.png)
 
 - **Live URL:** `http://localhost:8000` (local deployment)
-  **Video Demo:** <YOUTUBE_LINK>
-  **Slide Deck:** <GOOGLE_SLIDES_LINK>
+  **Video Demo:** <https://youtu.be/ZcAcjFtskI4?si=ns0XjaGvQSdkVJZY>
+  **Slide Deck:** < https://app.presentations.ai/view/QaGTxvUMjJ >
 
 ---
 
@@ -251,7 +251,7 @@ LUMINA/
 | Name                           | Role                         |
 | ------------------------------ | ---------------------------- |
 | Muhamad Noval Darmawan         | Backend, Computer Vision, AI |
-| Sahra Raditiya Fadillah        | Frontend, UI/UX              |
+| Sahra Raditiya Fadillah        | Backend, Frontend, UI/UX     |
 | Syeftyan Eka Fauzia Rosyidin   | Data Engineering             |
 | Fauzia Nisrina Salsabila       | Project Management           |
 | Jovelio Curtis Ibrani Manurung | Documentation & Presentation |
