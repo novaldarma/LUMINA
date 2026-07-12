@@ -1,0 +1,36 @@
+# Cloudflare Tunnel configuration for LUMINA project
+# -------------------------------------------------
+# This file defines a *named* tunnel called "lumina". Using a named tunnel
+# gives you a permanent public URL (or a custom sub‑domain) that does not
+# change each time the tunnel is started.
+#
+# 1. Install cloudflared (https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/)
+# 2. Authenticate with your Cloudflare account:
+#      cloudflared tunnel login
+# 3. Create the named tunnel (run once):
+#      cloudflared tunnel create lumina
+#    This will generate a credentials file in ~/.cloudflared/<ID>.json.
+#    Copy that file into the project (e.g., .cloudflared/lumina.json) and
+#    reference it below if you wish to keep the credentials version‑controlled.
+# 4. Configure a DNS CNAME that points to the generated UUID sub‑domain, e.g.:
+#      lumina.example.com CNAME <UUID>.cfargotunnel.com
+#    Replace "lumina.example.com" with the domain you own.
+# 5. Start the tunnel with:
+#      cloudflared tunnel run lumina
+#    The script start_services.bat now runs this command.
+
+# Tunnel identifier (named tunnel)
+tunnel: lumina
+
+# Path to the credentials file (generated in step 3). Adjust if you store it elsewhere.
+credentials-file: .cloudflared/lumina.json
+
+ingress:
+  # Public hostname that will resolve to your local FastAPI service
+  - hostname: lumina.example.com
+    service: http://localhost:8000
+  # Fallback – return 404 for any other request
+  - service: http_status:404
+
+# Optional: log level (info, debug, error)
+loglevel: info

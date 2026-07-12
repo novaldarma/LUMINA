@@ -21,14 +21,13 @@ start "FastAPI" uvicorn backend.main:app --host 0.0.0.0 --port 8000
 REM Give the backend a moment to start before opening tunnels
 timeout /t 5 /nobreak > nul
 
-REM ----- Start ngrok tunnel -----
-echo Starting ngrok tunnel for port 8000 ...
-start "ngrok" ngrok http 8000
-
-REM ----- Start Cloudflare Tunnel -----
-REM Ensure cloudflared is installed and accessible via PATH.
-echo Starting Cloudflare Tunnel (cloudflared) for http://localhost:8000 ...
-start "cloudflared" cloudflared tunnel --url http://localhost:8000
+REM ----- Start Cloudflare Tunnel (static URL) -----
+REM The free Cloudflare Tunnel generates a random URL each time. To obtain a permanent URL,
+REM you need to create a named tunnel and bind it to a custom domain you control.
+REM See the documentation in the repository (cloudflared.yml) for details.
+REM Once the tunnel "lumina" is created and DNS is configured, you can start it with:
+echo Starting static Cloudflare Tunnel (cloudflared) for http://localhost:8000 ...
+start "cloudflared" cloudflared tunnel run lumina
 
 echo All services have been launched. Check each window for logs.
 pause
