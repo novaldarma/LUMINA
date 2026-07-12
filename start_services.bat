@@ -21,13 +21,19 @@ start "FastAPI" uvicorn backend.main:app --host 0.0.0.0 --port 8000
 REM Give the backend a moment to start before opening tunnels
 timeout /t 5 /nobreak > nul
 
-REM ----- Start Cloudflare Tunnel (static URL) -----
-REM The free Cloudflare Tunnel generates a random URL each time. To obtain a permanent URL,
-REM you need to create a named tunnel and bind it to a custom domain you control.
-REM See the documentation in the repository (cloudflared.yml) for details.
-REM Once the tunnel "lumina" is created and DNS is configured, you can start it with:
-echo Starting static Cloudflare Tunnel (cloudflared) for http://localhost:8000 ...
-start "cloudflared" cloudflared tunnel run lumina
+REM ----- Start Cloudflare Tunnel (quick tunnel only) -----
+REM This script now always uses a temporary quick tunnel (no certificate required).
+REM The tunnel generates a random public URL each time the script runs.
+
+echo Starting quick Cloudflare Tunnel (temporary URL)...
+REM The output of the quick tunnel contains a line starting with "https://"
+REM Capture that line and display it for the user.
+for /f "tokens=*" %%A in ('cloudflared tunnel --url http://localhost:8000 ^| findstr /r "https://"') do (
+    set "PUBLIC_URL=%%A"
+    echo Public URL: %PUBLIC_URL%
+)
+REM Keep the quick tunnel running in a separate window
+start "cloudflared" cloudflared tunnel --url http://localhost:8000
 
 echo All services have been launched. Check each window for logs.
 pause
