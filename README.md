@@ -240,7 +240,7 @@ LUMINA/
 ![Family Dashboard](docs/screenshots/family-dashboard.png)
 ![Patient Dashboard](docs/screenshots/patient-dashboard.png)
 
-- **Live URL:** `http://localhost:8000` (local deployment)
+- **Live URL:** `http://localhost:8000` (local deployment) `https://lumina-production-2e24.up.railway.app/` (Demo URL)
   **Video Demo:** <https://youtu.be/ZcAcjFtskI4?si=ns0XjaGvQSdkVJZY>
   **Slide Deck:** < https://app.presentations.ai/view/QaGTxvUMjJ >
 
