@@ -76,10 +76,6 @@ The project is **deployment‑ready** for AMD infrastructure. When AMD GPU resou
 
 ## 🏗️ Architecture
 
-<!-- Architecture diagram (replace with real diagram image) -->
-
-![Architecture Diagram](docs/screenshots/architecture.png)
-
 ```
 ┌──────────────────────────────────────────────────────┐
 │                    LUMINA System                      │
@@ -270,5 +266,5 @@ MIT License — see [LICENSE](LICENSE) file for details.
 
 <p align="center">
   <b>Built with ❤️ for AMD ACT-II Hackathon</b><br>
-  <i>Making Alzheimer care smarter, one pixel at a time.</i>
+  <i>Designing a smart communication bridge between patients, caregivers, and telemedicine technology.</i>
 </p>
