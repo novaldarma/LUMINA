@@ -1,4 +1,4 @@
-# 🧠 LUMINA — AI-Powered Alzheimer Patient Monitoring System
+# 🧠 MemoryLink: LUMINA — AI-Powered Alzheimer Patient Monitoring System
 
 <!-- Banner image (replace with real project cover) -->
 
